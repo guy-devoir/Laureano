@@ -1,0 +1,111 @@
+{% extends "index.html" %}
+{% block style%}
+<style>
+    table{
+        border-collapse:initial;
+    }
+    input{
+		width: 200px;
+	}
+	div{
+		padding: 7px;
+	}
+    .inv-table{
+        height: 400px; 
+        overflow-x: hidden; 
+        overflow-y: scroll;
+    }
+</style>
+{% endblock %}
+{% block script%}{% endblock %}	
+{% block title %}<title>Proformas</title>{% endblock %}
+{% block content %}
+<div class="grid-container">
+    <div class="grid-item">
+        <h1>Inventario</h1>
+        <button onclick="getAll()">General</button>
+        <button onclick="getAll()">Escuelas</button>
+        <div class="inv-table">
+            <table id="inv" contenteditable="false">
+                <thead>
+                    <th style="width: 20px;"></th>
+                    <th style="width: 130px;">Código</th>
+                    <th style="width: 350px;">Nombre</th>
+                    <th style="width: 53px;">Precio</th>
+                </thead>
+                <tbody>
+    
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="grid-item" style="height: 260px;">
+        <div ></div>
+        <form>
+            <div><label for="barcode">Código de Barras: </label></div>					
+			<div><input id="barcode" readonly></div>
+			<div><label for="_conc">Concepto: </label></div>
+			<div><input id="_conc" type="text" onkeydown="return(event.keyCode!=13);" required></div>	
+			<div><label for="cu">Precio Unitario: </label></div>					
+			<div><input id="cu" type="text" onkeydown="return(event.keyCode!=13);" required></div>
+        </form>
+        <button>Actualizar</button>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('load', (event) =>{
+
+        document.getElementById('barcode').value = "";
+        document.getElementById('_conc').value = "";
+        document.getElementById('cu').value = "";
+
+    });
+
+    function getAll(){
+        var table = document.getElementById("inv");
+        var tablebody = table.getElementsByTagName('tbody')[0];
+        if (tablebody.rows.length == 0){
+            console.log('Empty Table');
+        }else{
+            console.log('Cleaning Table')
+            table.getElementsByTagName('tbody')[0].innerHTML = '';     
+        }
+        firebase.database().ref('/productos/').once('value',
+            function(AllRecords){
+                AllRecords.forEach(
+                    function(CurrentRecord){
+                        var key = CurrentRecord.key;
+                        var name = CurrentRecord.val().name;
+
+                        var price = CurrentRecord.val().price;
+                        
+                        var n = tablebody.rows.length;
+                        var row = tablebody.insertRow(n);
+
+                        var cell1 = row.insertCell(0);
+                        var cell2 = row.insertCell(1); 
+                        var cell3 = row.insertCell(2);
+                        var cell4 = row.insertCell(3);
+
+                        cell1.innerHTML = "<a href='#' onclick='proofConcept("+n+")'><i class='fas fa-edit'></i></a>";
+                        cell2.innerHTML = key;
+                        cell3.innerHTML = name;
+                        cell4.innerHTML = parseFloat(price).toFixed(2);
+                    }
+                );
+            }
+        );
+        
+    }
+
+    function proofConcept(n){
+        var table = document.getElementById("inv");
+        var tablebody = table.getElementsByTagName('tbody')[0];
+        //alert(tablebody.rows[n].cells[2].innerHTML + tablebody.rows[n].cells[3].innerHTML);
+        document.getElementById('barcode').value = tablebody.rows[n].cells[1].innerHTML;
+        document.getElementById('_conc').value = tablebody.rows[n].cells[2].innerHTML;
+        document.getElementById('cu').value = tablebody.rows[n].cells[3].innerHTML;
+    }
+</script>
+{% endblock %}

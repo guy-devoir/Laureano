@@ -1,0 +1,53 @@
+{% extends "index.html" %}
+{% block style %}
+<style>
+    .grid-container{
+		grid-gap: 30px !important;
+	}
+	input{
+		width: 250px;
+	}
+	div{
+		padding: 10px;
+	}
+	@media (max-width: 700px) {
+		.grid-item {
+		width: 350px !important;
+		}
+	}
+</style> 
+{% endblock %}
+{% block script %}<script type="text/javascript" src="{{url_for('static', filename='js/db.js')}}"></script>{% endblock %}
+{% block title %}
+<title>Añadir</title>
+{% endblock %}
+{% block content %}
+<div class="grid-container" style="align-items: baseline;">
+	<div style="padding-left: 30px;" class="grid-item">
+		<h1>Añadir Producto</h1>		
+		<form id="form-new-product">
+			<div><label for="barcode">Código de Barras: </label></div>					
+			<div><input id="barcode" type="text" onkeydown="return(event.keyCode!=13);" required></div>	
+			<div><label for="_conc">Concepto: </label></div>
+			<div><input id="_conc" type="text" onkeydown="return(event.keyCode!=13);" required></div>	
+			<div><label for="cu">Precio Unitario: </label></div>					
+			<div><input id="cu" type="text" onkeydown="return(event.keyCode!=13);" required></div>
+		</form>
+		<button onclick="addProduct()">Agregar</button>
+	</div>
+	<div class="grid-item">
+		<h1>Añadir NIT</h1>
+		<form>
+			<div><label for="nit_client">NIT: </label></div>	
+			<div><input id="nit_client" required></div>
+			<div><label for="name_client">Nombre: </label></div>
+			<div><input id="name_client" type="text" required></div>
+			<div><label for="address_client">Dirección: </label></div>
+			<div><input id="address_client" required></div>
+			<div><label for="_tel">Teléfono: </label></div>
+			<div><input id="_tel" type="tel"></div>
+		</form>
+		<button onclick="addNIT()">Agregar</button>
+	</div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "index.html" %}
+{% block style %}
+<style>
+    body
+    {
+        background-color: #FDFBF9 !important;
+        background-image: none;
+    }
+    .grid-item{
+        width: 500px;
+        border: none !important;
+        background-image: none;
+        background-color: #28282B;
+    }
+    .grid-item:hover{
+        background-color: #28282B;
+        transition: 0.4s ease-in-out;
+    }
+    .grid-container{
+        padding: auto;
+        align-items: center;
+        grid-template-columns: repeat(1, 1fr);
+    }
+    p{
+        padding: 5px;
+    }
+    @media (max-width: 1100px) {
+        .grid-container{
+            display: flex;
+        }
+	}	
+</style> 
+{% endblock %}
+{% block script%}<!-- NO SCRIPT -->{% endblock %}
+
+{% block title %}
+<title>About</title>
+{% endblock %}
+{% block content %}
+<div class="grid-container">
+    <div class="grid-item">
+        <h1>Technologies</h1>
+        <ul>
+            <li>Firebase 5.8.1</li>
+            <li>Ajax 1.5</li>
+            <li>Flask 2.1.1</li>
+            <li>openpyxl 3.0.9</li>
+            <li>pyinstaller 4.8</li>
+        </ul>
+        <h1>Manuales</h1>	
+    </div>
+</div>
+{% endblock %}

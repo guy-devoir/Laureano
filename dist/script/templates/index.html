@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv=”Content-Type” content=”text/html; charset=UTF-8″ />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="shortcut icon" type="image/png" href="{{url_for('static', filename='css/resources/turtle.png')}}"/>
+	<link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+	{% block style %}
+	{% endblock %}
+	<!-- DATABASE -->
+	<script type="text/javascript" src="https://www.gstatic.com/firebasejs/5.8.1/firebase-app.js"></script>
+	<script type="text/javascript" src="https://www.gstatic.com/firebasejs/5.8.1/firebase-auth.js"></script>
+	<script type="text/javascript" src="https://www.gstatic.com/firebasejs/5.8.1/firebase-database.js"></script>
+	<script type="text/javascript" src="https://www.gstatic.com/firebasejs/5.8.1/firebase-storage.js"></script>
+	
+	<!-- EXPORT	 FUNCTIONALITY -->
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+	
+	<script type="text/javascript" src="{{url_for('static', filename='js/firebase.js')}}"></script>
+	{% block script%}<script type="text/javascript" src="{{url_for('static', filename='js/main.js')}}"></script>{% endblock %}
+	
+	{% block title %}<title>Proformas</title>{% endblock %}
+</head>
+<body>
+	<nav>
+		<a href="/">Home</a>
+		<a href="/add">Base de Datos</a>
+		<a href="/about">About</a>
+	</nav>
+	{% block content %}
+	<div class="grid-container" id="blur">
+		<div class="grid-item">
+			<h1>Venta de Articulos de Limpieza</br>"Velasquez"</h1>
+			<label for="NIT">NIT:</label>
+			<input id="NIT" type="text">
+			<label for="_fec">Fecha:</label>
+			<input id="_fec" type="date">
+			<div><label for="_client">Nombre: </label></div>
+			<div><textarea id="_client"></textarea></div>
+			<div><label for="_adress">Dirección: </label></div>
+			<div><textarea id="_adress"></textarea></div>
+			<p>⠀</p>
+			<button id="org" onclick="rework()">Actualizar</button>
+			<button onclick="exporting_ajax()">Exportar</button>
+			<table id="tbl1" contenteditable="true">
+				<tr>
+					<th style="width: 38px;" contenteditable="false"></th>
+					<th style="width: 69px" contenteditable="false">Unidades</th>
+					<th style="width: 416px;" contenteditable="false">Concepto</th>
+					<th style="width: 30px; font-size: small;" contenteditable="false">C/U</th>
+					<th style="width: 38px; color: #ed3720; padding-left: 15px; padding-right: 15px;" contenteditable="false" >Total</th>
+				</tr>
+			</table>
+			<p><b>TOTAL: </b></p>
+			<p id="n_total" style="color: white; font-size: x-large;"></p>
+		</div>
+		<div class="grid-item" style="height:315px;">
+			<h1>Agregar Producto</h1>
+			<form>
+				<div>
+					<label for="quant">Cantidad: </label>
+					<input id="quant" required>
+				</div>
+				<div>
+					<label for="conc">Concepto: </label>
+					<input id="conc" type="text" required>
+				</div>
+				<div>
+					<label for="_cu">Precio Unitario: </label>
+					<input style="width: 100px" id="_cu" required>
+				</div>
+			</form>
+			<button onclick="manualAdd()">Agregar</button>
+			<form id="brc-form">
+				<div>
+					<label for="barcode">BarCode: </label>
+					<input id="barcode" onkeydown="return(event.keyCode!=13);">
+				</div>
+			</form>
+			<button id="BtnBar" onclick="searchCode()">Agregar</button>
+		</div>
+	</div>
+	
+	<script>
+	var input = document.getElementById("barcode");
+	input.addEventListener("keyup", function(event) {
+		  if (event.keyCode === 13) {
+			   event.preventDefault();
+			document.getElementById("BtnBar").click();
+		  }
+	}); 
+	</script>
+    {% endblock %}
+</body>
+</html>

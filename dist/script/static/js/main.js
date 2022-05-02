@@ -1,9 +1,10 @@
 //Añadir producto
-var opened = false;
 var products_cache = [];
+var precio_de_costo = [];
+let ymc = 0;
 //Aquí tengo que añadir el la verificación de si está repetido, y conectarlo a Firebase
 
-function addProduct(_quantity, _concept, _price) {
+function addProduct(_val, _quantity, _concept, _price) {
 	var random = Math.floor(Math.random() * 1000001).toString();
 	var table = document.getElementById("tbl1");
 	const n = document.getElementById("tbl1").rows.length;
@@ -14,7 +15,8 @@ function addProduct(_quantity, _concept, _price) {
 	var cell4 = row.insertCell(3); //Precio
 	var cell5 = row.insertCell(4); //Total
 
-	cell1.innerHTML = "<button class=\"delete-button\" onclick=\"deleteProduct('" + "producto_" + random.length + random + "')\"></button>";
+	cell1.innerHTML = "<button class='delete-button' value='"+ _val +"' onclick=\"deleteProduct('producto_" + random + "')\"></button>";
+	cell1.contentEditable = false;
 	cell2.innerHTML = _quantity;
 	cell3.innerHTML = _concept;
 	cell4.innerHTML = parseFloat(_price).toFixed(2);
@@ -36,7 +38,7 @@ function manualAdd(){
 				document.getElementById('conc').value = "";
 				document.getElementById('_cu').value = "";
 			} else{
-				addProduct(parseInt(document.getElementById('quant').value), document.getElementById('conc').value, parseFloat(document.getElementById('_cu').value))
+				addProduct('null',parseInt(document.getElementById('quant').value), document.getElementById('conc').value, parseFloat(document.getElementById('_cu').value))
 			}
 		} else{
 			alert("Campo \"Concepto\" Requerido")
@@ -46,11 +48,24 @@ function manualAdd(){
 	}
 }
 
+function sectionSelected(){
+	if (document.getElementById('general').checked){
+		searchCode('/productos/');
+	} else if (document.getElementById('compra').checked){
+		searchCode('/productos-compra/');
+	} else if (document.getElementById('escuela').checked){
+		searchCode('/productos-escuelas/');
+	} else if (document.getElementById('other').checked){
+		searchCode('/productos-other/');
+	} else {
+		alert('Seleccione la dirección de la base de datos.')
+	}
+}
 
-function searchCode(){
+function searchCode(reference){
 	if (document.getElementById("barcode").value != NaN || document.getElementById("barcode").value == ""){
 	var _code = document.getElementById("barcode").value;
-	var ref = firebase.database().ref("/productos/" + _code);
+	var ref = firebase.database().ref(reference + _code);
 	ref.once('value', function (snapshot) {
         var obj = snapshot.val();
 		//console.log(_code, obj.name, obj.price)
@@ -60,7 +75,7 @@ function searchCode(){
 				showTotal()
 				document.getElementById("barcode").value = "";
 			} else{
-				addProduct(1, obj.name, obj.price);
+				addProduct(snapshot.key, 1, obj.name, obj.price);
 				document.getElementById("barcode").value = "";
 			}						
 		}		
@@ -81,7 +96,7 @@ function showTotal(){
 			}
 		}
 	}
-	document.getElementById('n_total').innerHTML = parseFloat(aux).toFixed(2) + ' Q';
+	document.getElementById('n_total').innerHTML = parseFloat(aux).toFixed(2);
 }
 
 function totalPrice(_quantity, _price){
@@ -144,13 +159,15 @@ function rework(){
 }
 
 function exporting_ajax(){
+	gettingRaw()
 	var temp = [];
 	const _nit = document.getElementById('NIT').value;
 	const _fecha = document.getElementById("_fec").value;
 	const _cliente = document.getElementById("_client").value;
 	const _direccion = document.getElementById("_adress").value;
-
 	var tabla = document.getElementById("tbl1");
+
+	
 	for (let i in tabla.rows){
 		if (parseInt(i)){
 			if (i == 0){
@@ -171,15 +188,67 @@ function exporting_ajax(){
 	const s = JSON.stringify(dict_values);
 	
 	console.log(s);
-
+	/*
+	Ventas del día... LPM,
+	La definición de "¿No quiere pollo también?".
+	*/
 	$.ajax({
 		url:"/",
 		type:"POST",
 		contentType: "application/json",
 		data: JSON.stringify(s)
 	})
+
+	
 }
 
+function gettingRaw(){
+	precio_de_costo = [];
+	var database = firebase.database();
+	var tabla = document.getElementById("tbl1");
+	for (let i in tabla.rows){
+		if (parseInt(i)){
+			if (i == 0){
+				console.log("Headers' row")
+			} else {
+				try{
+					var _code = tabla.rows[i].cells[0].getElementsByClassName('delete-button')[0].value;
+					var ref = database.ref(/productos-compra/ + _code);
+					ref.once('value', function (snapshot) {
+						var obj = snapshot.val();
+						if (obj != undefined) {
+							var suma_aux = parseFloat(obj.price)*parseInt(tabla.rows[i].cells[1].innerHTML.replace('<br>',''));
+							precio_de_costo.push(suma_aux);
+						} 
+					});
+				}catch{
+					console.log('No reference')
+				}
+			}
+		} else {
+			console.log("Index undefined: ", i);
+		}
+	}
+	sumaArray()
+}
+
+function addSell(){
+	var database = firebase.database();
+	var today = new Date();
+	var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+' '+today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();;
+	database.ref('/ventas/' + date).set({
+		costo: ymc,
+		ganancia: parseFloat(document.getElementById('n_total').innerHTML)+ymc,
+		venta: document.getElementById('n_total').innerHTML
+	});
+}
+
+function sumaArray(){
+	for(let i = 0; i < precio_de_costo.length; i++){
+		ymc = ymc + parseFloat(precio_de_costo[i])
+	}
+	addSell();
+}
 
 //No mando ninguna forma por lo que está bien... creo
 window.addEventListener("beforeunload", function (e) {

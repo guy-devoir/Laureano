@@ -38,9 +38,12 @@ def add_p():
 
 @app.route('/inv')
 def inventory():
-    return render_template('inventory.html')    
+    return render_template('inventory.html')
+
+@app.route('/contacts')    
+def contacts():
+    return render_template('contacts.html')
 
 if __name__ == '__main__':
-    #os.startfile('http://127.0.0.1:4000/')
-    app.run(debug=True, port=4000)
-    #ui.run()
+    #app.run(debug=True, port=4000)
+    ui.run()

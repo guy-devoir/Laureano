@@ -79,6 +79,7 @@ textarea{
 
 label,p{
     margin: 10px;
+    
 }
 
 .grid-container {
@@ -93,13 +94,6 @@ label,p{
     padding-top: 20px;
     padding-left: 25px;
     padding-right: 25px;
-}
-
-.grid-container#blur.active {
-	filter: blur(7px);
-	transition: 0.2s ease-in-out;
-	pointer-events: none;
-	user-select: none;
 }
 
 .grid-item{
@@ -153,6 +147,7 @@ button:hover{
 
 /*Main table*/
 table{
+    display: flex;
     background-color: rgba(255, 255, 255, 1);
     border-collapse: collapse;
     border-radius: 10px;
@@ -179,6 +174,21 @@ tr:nth-child(odd){
     border-left: white;
     border-right: white;
     background-color: #87CEEB;
+}
+
+table a:hover{
+    color: #ed3720;
+}
+
+table input{
+    border: none;
+    background: none;
+}
+
+.inv-table{
+    height: 500px; 
+    overflow-x: hidden; 
+    overflow-y: scroll;
 }
 
 .total{

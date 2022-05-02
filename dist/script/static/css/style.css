@@ -5,6 +5,8 @@ html{
 }
 
 body{
+    scrollbar-width: none;
+    scrollbar-color: rgba(0, 49, 83, 0.5) rgba(0,0,0,0);
     background-image: url('resources/alps.jpg');
     background-size: cover;
     background-repeat: no-repeat;
@@ -13,6 +15,21 @@ body{
     padding-top: 0px;
     margin-top: 0px;
     color: whitesmoke;
+}
+
+/*Scrollbar styling for Chrome */
+*::-webkit-scrollbar {
+    width: 12px;
+  }
+  
+*::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0);
+}
+  
+*::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 49, 83, 0.5);
+    border-radius: 20px;
+    border: none;
 }
 
 nav{
@@ -62,6 +79,7 @@ textarea{
 
 label,p{
     margin: 10px;
+    
 }
 
 .grid-container {
@@ -76,13 +94,6 @@ label,p{
     padding-top: 20px;
     padding-left: 25px;
     padding-right: 25px;
-}
-
-.grid-container#blur.active {
-	filter: blur(7px);
-	transition: 0.2s ease-in-out;
-	pointer-events: none;
-	user-select: none;
 }
 
 .grid-item{
@@ -136,6 +147,7 @@ button:hover{
 
 /*Main table*/
 table{
+    display: flex;
     background-color: rgba(255, 255, 255, 1);
     border-collapse: collapse;
     border-radius: 10px;
@@ -164,6 +176,16 @@ tr:nth-child(odd){
     background-color: #87CEEB;
 }
 
+table a:hover{
+    color: #ed3720;
+}
+
+.inv-table{
+    height: 500px; 
+    overflow-x: hidden; 
+    overflow-y: scroll;
+}
+
 .total{
     margin: 0px;
     color: red;
@@ -182,7 +204,7 @@ form:hover{
     background-color: rgba(255, 255, 255, 0.3);
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 900px) {
 	.grid-container {
         display: grid;
 		margin: 10px;

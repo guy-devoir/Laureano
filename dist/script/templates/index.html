@@ -5,6 +5,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="shortcut icon" type="image/png" href="{{url_for('static', filename='css/resources/turtle.png')}}"/>
 	<link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 	{% block style %}
 	{% endblock %}
 	<!-- DATABASE -->
@@ -23,9 +25,10 @@
 </head>
 <body>
 	<nav>
-		<a href="/">Home</a>
-		<a href="/add">Base de Datos</a>
-		<a href="/about">About</a>
+		<a href="/"><i class="fas fa-file-excel fa-xs"></i> Home</a>
+		<a href="/inv"><i class="fas fa-table fa-xs"></i> Inventario</a>
+		<a href="/contacts"><i class="fa fa-solid fa-user fa-xs"></i> Agenda</a>
+		<a href="/about"><i class="fas fa-code fa-xs"></i> About</a>
 	</nav>
 	{% block content %}
 	<div class="grid-container" id="blur">
@@ -51,7 +54,7 @@
 					<th style="width: 38px; color: #ed3720; padding-left: 15px; padding-right: 15px;" contenteditable="false" >Total</th>
 				</tr>
 			</table>
-			<p><b>TOTAL: </b></p>
+			<p><b>TOTAL EN QUETZALES: </b></p>
 			<p id="n_total" style="color: white; font-size: x-large;"></p>
 		</div>
 		<div class="grid-item" style="height:315px;">
@@ -76,8 +79,20 @@
 					<label for="barcode">BarCode: </label>
 					<input id="barcode" onkeydown="return(event.keyCode!=13);">
 				</div>
+				<div>
+					<input type="radio" name="dbtype" id="general" value="/productos/">
+					<label for="general" style="font-size:smaller;">Precio Venta</label>
+					<input type="radio" name="dbtype" id="compra" value="/productos-a/">
+					<label for="compra" style="font-size:smaller;">Precio Compra</label>
+				</div>
+				<div>
+					<input type="radio" name="dbtype" id="escuela" value="/productos-a/">
+					<label for="escuela" style="font-size:smaller;">Precio Escuelas</label>
+					<input type="radio" name="dbtype" id="other" value="/productos-a/">
+					<label for="other" style="font-size:smaller;">Precio ...</label>
+				</div>
 			</form>
-			<button id="BtnBar" onclick="searchCode()">Agregar</button>
+			<button id="BtnBar" onclick="sectionSelected()">Agregar</button>
 		</div>
 	</div>
 	

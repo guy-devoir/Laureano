@@ -30,7 +30,7 @@ class JSON_to_excel:
 			18:'Dieciocho',
 			19:'Diecinueve',
 			20:'Veinte',
-			21:'Veintiuno',
+			21:'Veintiún',
 			22:'Veintidos',
 			23:'Veintitres',
 			24:'Veinticuatro',

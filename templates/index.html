@@ -27,7 +27,7 @@
 	<nav>
 		<a href="/"><i class="fas fa-file-excel fa-xs"></i> Home</a>
 		<a href="/inv"><i class="fas fa-table fa-xs"></i> Inventario</a>
-		<a href="/add"><i class="fas fa-database fa-xs"></i> Añadir</a>
+		<a href="/contacts"><i class="fa fa-solid fa-user fa-xs"></i> Agenda</a>
 		<a href="/about"><i class="fas fa-code fa-xs"></i> About</a>
 	</nav>
 	{% block content %}
@@ -43,18 +43,17 @@
 			<div><label for="_adress">Dirección: </label></div>
 			<div><textarea id="_adress"></textarea></div>
 			<p>⠀</p>
-			<button id="org" onclick="rework()">Actualizar</button>
 			<button onclick="exporting_ajax()">Exportar</button>
-			<table id="tbl1" contenteditable="true">
+			<table id="tbl1" contenteditable="false">
 				<tr>
-					<th style="width: 38px;" contenteditable="false"></th>
-					<th style="width: 69px" contenteditable="false">Unidades</th>
-					<th style="width: 416px;" contenteditable="false">Concepto</th>
-					<th style="width: 30px; font-size: small;" contenteditable="false">C/U</th>
-					<th style="width: 38px; color: #ed3720; padding-left: 15px; padding-right: 15px;" contenteditable="false" >Total</th>
+					<th style="width: 38px;"></th>
+					<th style="width: 69px">Unidades</th>
+					<th style="width: 416px;">Concepto</th>
+					<th style="width: 40px; font-size: small;">C/U</th>
+					<th style="width: 38px; color: #ed3720; padding-left: 15px; padding-right: 15px;">Total</th>
 				</tr>
 			</table>
-			<p><b>TOTAL: </b></p>
+			<p><b>TOTAL EN QUETZALES: </b></p>
 			<p id="n_total" style="color: white; font-size: x-large;"></p>
 		</div>
 		<div class="grid-item" style="height:315px;">
@@ -81,17 +80,25 @@
 				</div>
 				<div>
 					<input type="radio" name="dbtype" id="general" value="/productos/">
-					<label for="general" style="font-size:smaller;">General</label>
+					<label for="general" style="font-size:smaller;">Precio Venta</label>
+					<input type="radio" name="dbtype" id="compra" value="/productos-a/">
+					<label for="compra" style="font-size:smaller;">Precio Compra</label>
 				</div>
 				<div>
-					<input type="radio" name="dbtype" id="school" value="/productos-a/">
-					<label for="school" style="font-size:smaller;">Escuelas</label>
+					<input type="radio" name="dbtype" id="escuela" value="/productos-a/">
+					<label for="escuela" style="font-size:smaller;">Precio Escuelas</label>
+					<input type="radio" name="dbtype" id="other" value="/productos-a/">
+					<label for="other" style="font-size:smaller;">Precio ...</label>
 				</div>
 			</form>
-			<button id="BtnBar" onclick="searchCode()">Agregar</button>
+			<button id="BtnBar" onclick="sectionSelected()">Agregar</button>
 		</div>
 	</div>
-	
+	<div style="visibility:hidden;" id="tbl2">
+		<table>
+
+		</table>
+	</div>
 	<script>
 	var input = document.getElementById("barcode");
 	input.addEventListener("keyup", function(event) {

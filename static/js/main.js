@@ -1,9 +1,10 @@
 //Añadir producto
-var opened = false;
 var products_cache = [];
+var precio_de_costo = [];
+let ymc = 0;
 //Aquí tengo que añadir el la verificación de si está repetido, y conectarlo a Firebase
 
-function addProduct(_quantity, _concept, _price) {
+function addProduct(_val, _quantity, _concept, _price) {
 	var random = Math.floor(Math.random() * 1000001).toString();
 	var table = document.getElementById("tbl1");
 	const n = document.getElementById("tbl1").rows.length;
@@ -14,17 +15,42 @@ function addProduct(_quantity, _concept, _price) {
 	var cell4 = row.insertCell(3); //Precio
 	var cell5 = row.insertCell(4); //Total
 
-	cell1.innerHTML = "<button class=\"delete-button\" onclick=\"deleteProduct('" + "producto_" + random.length + random + "')\"></button>";
-	cell2.innerHTML = _quantity;
+	cell1.innerHTML = "<button class='delete-button' value='"+ _val +"' onclick=\"deleteProduct('producto_" + random + "')\"></button>";
+	//Celda 2
+	cell2.innerHTML = "<input onclick='update_table("+random+")' onkeyup='update_table("+random+")' type='number' style='width: 69px' min='1'>";
+	cell2.getElementsByTagName('input')[0].value = _quantity;
+	//Celda 3
 	cell3.innerHTML = _concept;
-	cell4.innerHTML = parseFloat(_price).toFixed(2);
+	cell3.contentEditable = true;
+	//Celda 4
+	cell4.innerHTML = "<input onkeyup='update_table("+random+")' type='text' style='width: 40px'>";
+	cell4.getElementsByTagName('input')[0].value = parseFloat(_price).toFixed(2);
+
 	const _result = totalPrice(_quantity, _price)
-	cell5.innerHTML =  _result;
+	cell5.innerHTML = _result;
+	cell5.contentEditable = false;
 	
 	showTotal();
 	document.getElementById('quant').value = "";
 	document.getElementById('conc').value = "";
 	document.getElementById('_cu').value = "";
+}
+
+function update_table(variable){
+	var tabla = document.getElementById('tbl1')
+	for(let i in tabla.rows){	
+		if (parseInt(i)){
+			console.log("Row Number: ",i);
+			var text = tabla.rows[i].cells[0].innerHTML;
+			if (text.includes(variable)){
+				var tst = tabla.rows[i].cells;
+				tabla.rows[i].cells[4].innerHTML = totalPrice(tst[1].getElementsByTagName('input')[0].value, tst[3].getElementsByTagName('input')[0].value);
+				showTotal();
+				return true;
+			} 
+		}
+	}
+	return false;
 }
 
 function manualAdd(){
@@ -36,7 +62,7 @@ function manualAdd(){
 				document.getElementById('conc').value = "";
 				document.getElementById('_cu').value = "";
 			} else{
-				addProduct(parseInt(document.getElementById('quant').value), document.getElementById('conc').value, parseFloat(document.getElementById('_cu').value))
+				addProduct('null',parseInt(document.getElementById('quant').value), document.getElementById('conc').value, parseFloat(document.getElementById('_cu').value))
 			}
 		} else{
 			alert("Campo \"Concepto\" Requerido")
@@ -46,11 +72,24 @@ function manualAdd(){
 	}
 }
 
+function sectionSelected(){
+	if (document.getElementById('general').checked){
+		searchCode('/productos/');
+	} else if (document.getElementById('compra').checked){
+		searchCode('/productos-compra/');
+	} else if (document.getElementById('escuela').checked){
+		searchCode('/productos-escuelas/');
+	} else if (document.getElementById('other').checked){
+		searchCode('/productos-other/');
+	} else {
+		alert('Seleccione la dirección de la base de datos.')
+	}
+}
 
-function searchCode(){
+function searchCode(reference){
 	if (document.getElementById("barcode").value != NaN || document.getElementById("barcode").value == ""){
 	var _code = document.getElementById("barcode").value;
-	var ref = firebase.database().ref("/productos/" + _code);
+	var ref = firebase.database().ref(reference + _code);
 	ref.once('value', function (snapshot) {
         var obj = snapshot.val();
 		//console.log(_code, obj.name, obj.price)
@@ -60,7 +99,7 @@ function searchCode(){
 				showTotal()
 				document.getElementById("barcode").value = "";
 			} else{
-				addProduct(1, obj.name, obj.price);
+				addProduct(snapshot.key, 1, obj.name, obj.price);
 				document.getElementById("barcode").value = "";
 			}						
 		}		
@@ -70,7 +109,6 @@ function searchCode(){
  }
 }
 
-//Funciones aritmeticas
 function showTotal(){
 	var table = document.getElementById("tbl1");
 	var aux = 0;
@@ -81,7 +119,7 @@ function showTotal(){
 			}
 		}
 	}
-	document.getElementById('n_total').innerHTML = parseFloat(aux).toFixed(2) + ' Q';
+	document.getElementById('n_total').innerHTML = parseFloat(aux).toFixed(2);
 }
 
 function totalPrice(_quantity, _price){
@@ -90,7 +128,6 @@ function totalPrice(_quantity, _price){
 	return _result.toString()
 }
 
-//Auxiliares
 function deleteProduct(variable){
 	var tabla = document.getElementById("tbl1");
 	for(let i in tabla.rows){	
@@ -133,33 +170,24 @@ function duplicateProduct(_concept, _manual){
 	return false;
 }
 
-function rework(){
-	var tabla = document.getElementById("tbl1");
-	for (let i in tabla.rows){
-		if (parseInt(i)){
-			tabla.rows[i].cells[4].innerHTML = totalPrice(parseInt(tabla.rows[i].cells[1].innerHTML.replace('<br>','')), parseFloat(tabla.rows[i].cells[3].innerHTML.replace('<br>','')));
-		}
-	}
-	showTotal();
-}
-
 function exporting_ajax(){
 	var temp = [];
 	const _nit = document.getElementById('NIT').value;
 	const _fecha = document.getElementById("_fec").value;
 	const _cliente = document.getElementById("_client").value;
 	const _direccion = document.getElementById("_adress").value;
-
 	var tabla = document.getElementById("tbl1");
+
+	
 	for (let i in tabla.rows){
 		if (parseInt(i)){
 			if (i == 0){
 				console.log("Headers' row")
 			} else {
 				const aux = [];
-				aux.push(tabla.rows[i].cells[1].innerHTML.replace('<br>',''));
+				aux.push(tabla.rows[i].cells[1].getElementsByTagName('input')[0].value);
 				aux.push(tabla.rows[i].cells[2].innerHTML.replace('<br>',''));
-				aux.push(tabla.rows[i].cells[3].innerHTML.replace('<br>',''));
+				aux.push(tabla.rows[i].cells[3].getElementsByTagName('input')[0].value);
 				temp.push(aux);
 			}
 		} else {
@@ -178,8 +206,9 @@ function exporting_ajax(){
 		contentType: "application/json",
 		data: JSON.stringify(s)
 	})
-}
 
+	
+}
 
 //No mando ninguna forma por lo que está bien... creo
 window.addEventListener("beforeunload", function (e) {

@@ -10,10 +10,10 @@
 	{% block style %}
 	{% endblock %}
 	<!-- DATABASE -->
-	<script type="text/javascript" src="https://www.gstatic.com/firebasejs/5.8.1/firebase-app.js"></script>
-	<script type="text/javascript" src="https://www.gstatic.com/firebasejs/5.8.1/firebase-auth.js"></script>
-	<script type="text/javascript" src="https://www.gstatic.com/firebasejs/5.8.1/firebase-database.js"></script>
-	<script type="text/javascript" src="https://www.gstatic.com/firebasejs/5.8.1/firebase-storage.js"></script>
+	<script type="text/javascript" src="https://www.gstatic.com/firebasejs/8.2.8/firebase-app.js"></script>
+	<script type="text/javascript" src="https://www.gstatic.com/firebasejs/8.2.8/firebase-auth.js"></script>
+	<script type="text/javascript" src="https://www.gstatic.com/firebasejs/8.2.8/firebase-database.js"></script>
+	<script type="text/javascript" src="https://www.gstatic.com/firebasejs/8.2.8/firebase-storage.js"></script>
 	
 	<!-- EXPORT	 FUNCTIONALITY -->
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
@@ -26,6 +26,7 @@
 <body>
 	<nav>
 		<a href="/"><i class="fas fa-file-excel fa-xs"></i> Home</a>
+		<a href="/profits"><i class="fas fa-money-bill fa-xs"></i> Ventas</a>
 		<a href="/inv"><i class="fas fa-table fa-xs"></i> Inventario</a>
 		<a href="/contacts"><i class="fa fa-solid fa-user fa-xs"></i> Agenda</a>
 		<a href="/about"><i class="fas fa-code fa-xs"></i> About</a>
@@ -43,7 +44,8 @@
 			<div><label for="_adress">Dirección: </label></div>
 			<div><textarea id="_adress"></textarea></div>
 			<p>⠀</p>
-			<button onclick="exporting_ajax()">Exportar</button>
+			<button onclick="exportingAjax()">Exportar</button>
+			<button onclick="location.reload()">Limpiar/Recargar</button>
 			<table id="tbl1" contenteditable="false">
 				<tr>
 					<th style="width: 38px;"></th>
@@ -58,25 +60,11 @@
 		</div>
 		<div class="grid-item" style="height:315px;">
 			<h1>Agregar Producto</h1>
-			<form>
-				<div>
-					<label for="quant">Cantidad: </label>
-					<input id="quant" required>
-				</div>
-				<div>
-					<label for="conc">Concepto: </label>
-					<input id="conc" type="text" required>
-				</div>
-				<div>
-					<label for="_cu">Precio Unitario: </label>
-					<input style="width: 100px" id="_cu" required>
-				</div>
-			</form>
-			<button onclick="manualAdd()">Agregar</button>
+
 			<form id="brc-form">
 				<div>
 					<label for="barcode">BarCode: </label>
-					<input id="barcode" onkeydown="return(event.keyCode!=13);">
+					<input id="barcode" onkeydown="return(event.keyCode!=13);" autofocus>
 				</div>
 				<div>
 					<input type="radio" name="dbtype" id="general" value="/productos/">
@@ -92,12 +80,28 @@
 				</div>
 			</form>
 			<button id="BtnBar" onclick="sectionSelected()">Agregar</button>
+
+			<form>
+				<div>
+					<label for="quant">Cantidad: </label>
+					<input id="quant" type="number" style="width: 148px;" required>
+				</div>
+				<div>
+					<label for="conc">Concepto: </label>
+					<input id="conc" type="text" style="width: 142px;" required>
+				</div>
+				<div>
+					<label for="_cu">Precio Unitario: </label>
+					<input style="width: 100px" id="_cu" required>
+				</div>
+			</form>
+			<button onclick="manualAdd()">Agregar</button>
+
 		</div>
 	</div>
-	<div style="visibility:hidden;" id="tbl2">
-		<table>
-
-		</table>
+	<div id="popup">
+		<h1><i class="fas fa-spinner fa-pulse"></i> Exportando a Excel</h1>
+		<button onclick="addProfit()">Cerrar</button>
 	</div>
 	<script>
 	var input = document.getElementById("barcode");

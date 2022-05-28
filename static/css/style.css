@@ -73,8 +73,8 @@ nav a:visited{
 /*Aquí pongo lo de la exportación*/
 textarea{
     margin-left: 10px;
-    width: 600px !important; 
-    height: 17px !important;
+    width: 600px; 
+    height: 17px;
 }
 
 label,p{
@@ -94,6 +94,13 @@ label,p{
     padding-top: 20px;
     padding-left: 25px;
     padding-right: 25px;
+}
+
+.grid-container.active {
+    filter: blur(7px);
+	transition: 0.2s ease-in-out;
+	pointer-events: none;
+	user-select: none;
 }
 
 .grid-item{
@@ -177,7 +184,8 @@ tr:nth-child(odd){
 }
 
 table a:hover{
-    color: #ed3720;
+    color: rgba(0, 49, 83, 1);
+    cursor: pointer;
 }
 
 table input{
@@ -199,6 +207,7 @@ table input{
 form{
     color: white;
     padding: 5px;
+    padding-top: 10px;
     padding-bottom: 10px;
     border-radius: 10px;
     background-color: rgba(0, 49, 83, 0.3);
@@ -207,6 +216,33 @@ form{
 form:hover{
     color: rgb(23, 23, 23);
     background-color: rgba(255, 255, 255, 0.3);
+}
+
+#popup{
+	position: fixed;
+	top: 40%;
+	left: 50%;
+	transform: translate(-50%,-50%);
+	padding: 50px;
+	background: whitesmoke;
+	border-radius: 15px;
+	border-top: 1px solid rgba(0, 49, 83, 0.7);
+	border-left: 1px solid rgba(0, 49, 83, 0.7);
+	box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+	visibility: hidden;
+	transition: 0.3s ease-in-out;
+}
+
+#popup.active
+{
+	top: 50%;
+	opacity: 1;
+	visibility: visible;
+}
+
+#popup h1{
+    color: rgba(0, 49, 83, 1);
+    text-shadow: 0px 0px #000000;
 }
 
 @media (max-width: 900px) {

@@ -1,8 +1,4 @@
-//Añadir producto
 var products_cache = [];
-var precio_de_costo = [];
-let ymc = 0;
-//Aquí tengo que añadir el la verificación de si está repetido, y conectarlo a Firebase
 
 function addProduct(_val, _quantity, _concept, _price) {
 	var random = Math.floor(Math.random() * 1000001).toString();
@@ -40,7 +36,7 @@ function update_table(variable){
 	var tabla = document.getElementById('tbl1')
 	for(let i in tabla.rows){	
 		if (parseInt(i)){
-			console.log("Row Number: ",i);
+			//console.log("Row Number: ",i);
 			var text = tabla.rows[i].cells[0].innerHTML;
 			if (text.includes(variable)){
 				var tst = tabla.rows[i].cells;
@@ -104,9 +100,9 @@ function searchCode(reference){
 			}						
 		}		
     });
- } else{
-	 alert("Ingresé un código")
- }
+ 	} else{
+		alert("Ingresé un código")
+ 	}
 }
 
 function showTotal(){
@@ -145,23 +141,18 @@ function deleteProduct(variable){
 }
 
 function duplicateProduct(_concept, _manual){
-	//console.log(_concept);
 	var tabla = document.getElementById("tbl1");
-	//Se comprueba que la tabla sea lo suficientemente grande
-
 	if (tabla.rows.length == 1){
 		return false;
 	}
 	//Se recorre toda la tabla
 	for(let i in tabla.rows){
-		//console.log("i es: ",i);
-		//console.log("Debería de ",parseInt(i))
 		if (parseInt(i)){
 			var text = tabla.rows[i].cells[2].innerHTML;
 			if (text == _concept) {
-				//Si ha sido una opción manual, hay que añadir tantos como lo haya querido metido en cantidad
-				tabla.rows[i].cells[1].innerHTML = _manual ? parseInt(tabla.rows[i].cells[1].innerHTML) + parseInt(document.getElementById('quant').value) : parseInt(tabla.rows[i].cells[1].innerHTML)+1;
-				const _result = totalPrice(tabla.rows[i].cells[1].innerHTML, tabla.rows[i].cells[3].innerHTML)
+				//Si ha sido una opción manual, hay que añadir la cantidad en '#quant'
+				tabla.rows[i].cells[1].getElementsByTagName('input')[0].value = _manual ? parseInt(tabla.rows[i].cells[1].getElementsByTagName('input')[0].value) + parseInt(document.getElementById('quant').value) : parseInt(tabla.rows[i].cells[1].getElementsByTagName('input')[0].value)+1;
+				const _result = totalPrice(tabla.rows[i].cells[1].getElementsByTagName('input')[0].value, tabla.rows[i].cells[3].getElementsByTagName('input')[0].value)
 				tabla.rows[i].cells[4].innerHTML = _result;
 				return true;
 			}
@@ -170,14 +161,21 @@ function duplicateProduct(_concept, _manual){
 	return false;
 }
 
-function exporting_ajax(){
+function toggle(){
+	var blur = document.getElementsByClassName('grid-container');
+	blur[0].classList.toggle('active');
+	var popup = document.getElementById('popup');
+	popup.classList.toggle('active');
+}
+
+//Manda está información para el backend en python
+function exportingAjax(){
 	var temp = [];
 	const _nit = document.getElementById('NIT').value;
 	const _fecha = document.getElementById("_fec").value;
 	const _cliente = document.getElementById("_client").value;
 	const _direccion = document.getElementById("_adress").value;
 	var tabla = document.getElementById("tbl1");
-
 	
 	for (let i in tabla.rows){
 		if (parseInt(i)){
@@ -197,23 +195,94 @@ function exporting_ajax(){
 	products_cache = temp;
 	const dict_values = { _nit, _fecha, _cliente, _direccion, products_cache};
 	const s = JSON.stringify(dict_values);
-	
-	console.log(s);
 
-	$.ajax({
-		url:"/",
-		type:"POST",
-		contentType: "application/json",
-		data: JSON.stringify(s)
-	})
-
-	
+	try{
+		$.ajax({
+			url:"/",
+			type:"POST",
+			contentType: "application/json",
+			data: JSON.stringify(s)
+		})	
+		toggle();
+	}catch(error){
+		alert('Error al exportal a Excel, intente de nuevo: ', error);
+	}
 }
 
-//No mando ninguna forma por lo que está bien... creo
+async function addProfit(){
+	var today = new Date();
+	var mth = new Object();
+	var mth = {
+		'01': 'Enero',
+		'02': 'Febrero',
+		'03': 'Marzo',
+		'04': 'Abril',
+		'05': 'Mayo',
+		'06': 'Junio',
+		'07': 'Julio',
+		'08': 'Agosto',
+		'09': 'Septiembre',
+		'10': 'Octubre',
+		'11': 'Noviembre',
+		'12': 'Diciembre'
+	};
+	var dd = String(today.getDate()).padStart(2, '0');
+	var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+	var yyyy = today.getFullYear();
+
+	var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+
+	today = yyyy + mm + dd + time;
+
+	const database = firebase.database();
+	var temp = [0];
+	var tabla = document.getElementById("tbl1");
+
+	var total_v = document.getElementById('n_total').innerHTML;
+
+	for(let i in tabla.rows){
+		if (parseInt(i)){
+			if (i == 0){
+				console.log("Headers' row")
+			} else {
+				const code = tabla.rows[i].cells[0].getElementsByClassName('delete-button')[0].value;
+				const _quantity = tabla.rows[i].cells[1].getElementsByTagName('input')[0].value;
+
+				var ref = database.ref('/productos-compra/' + code);
+				await ref.once('value', function (snapshot){
+					var obj = snapshot.val();
+					if (obj != undefined){
+						temp[0] += _quantity*parseFloat(obj.price);				
+					}
+				});
+			}
+		} else {
+			console.log("Index undefined: ", i);
+		}
+	}
+
+	database.ref(/ventas/ + today).set({
+		anio: yyyy,
+		mes: mth[mm],
+		dia: dd,
+		hora: time,
+		costo: temp[0],
+		ganancia: parseFloat(total_v) - parseFloat(temp[0]),
+		venta: total_v
+	});
+
+	toggle();
+}
+
+//Para evitar que se pierda la información de la página
 window.addEventListener("beforeunload", function (e) {
     var confirmationMessage = 'It looks like you have been editing something. '
                             + 'If you leave before saving, your changes will be lost.';
     (e || window.event).returnValue = confirmationMessage; //Gecko + IE
     return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
+});
+
+//El autofocus en id='barcode' y está función hacen más inmediata la interacción
+window.addEventListener('load', function (){
+	document.getElementById('general').checked = true;
 });

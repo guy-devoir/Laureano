@@ -15,6 +15,21 @@ function addProduct(){
                         name : concepto,
                         price : price
                     });
+
+                    database.ref('/productos-compra/'+barcode).set({
+                        name : concepto,
+                        price : price
+                    })
+
+                    database.ref('/productos-escuelas/'+barcode).set({
+                        name : concepto,
+                        price : price
+                    })
+
+                    database.ref('/productos-other/' + barcode).set({
+                        name : concepto,
+                        price : price
+                    })
                     document.getElementById('barcode').value = "";
                     document.getElementById('_conc').value = "";
                     document.getElementById('cu').value = "";

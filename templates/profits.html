@@ -1,0 +1,87 @@
+{% extends "index.html" %}
+{% block style %}
+<style>
+    @media (max-width: 900px) {
+	.grid-container {
+        display: flex;
+		margin: 10px;
+	}
+}
+</style>
+{% endblock %}
+{% block script%}
+<script>
+    window.addEventListener('load', function() {
+        getAll()
+    })
+
+    function getAll(){
+        var tabla = document.getElementById('tbl3');
+        
+        firebase.database().ref('/ventas/').once('value', function(AllRecords){
+            AllRecords.forEach(
+                function(CurrentRecord){
+                    
+                    var ano = CurrentRecord.val().anio;
+                    var mes = CurrentRecord.val().mes;
+                    var dia = CurrentRecord.val().dia;
+
+                    var costo = CurrentRecord.val().costo;
+                    var ganancia = CurrentRecord.val().ganancia;
+                    var venta = CurrentRecord.val().venta;
+                    var n = tabla.rows.length;
+                    var row = tabla.insertRow(n);
+
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    var cell3 = row.insertCell(2);
+                    var cell4 = row.insertCell(3);
+
+                    cell1.innerHTML = dia + ' ' + mes + ' ' + ano;
+                    cell2.innerHTML = costo;
+                    cell3.innerHTML = venta;
+                    cell4.innerHTML = ganancia;
+                }
+            )
+        });
+    }
+
+    function search_table(){
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search_input");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("tbl3");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[0];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                }else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+</script>
+{% endblock %}
+
+{% block title %}
+<title>Ventas</title>
+{% endblock %}
+{% block content %}
+<div class="grid-container">
+    <div class="grid-item">
+        <h1>Ventas</h1>
+        <input type="text" name="search_input" id="search_input" style="padding: 5px; margin: 10px; width: 290px;" onkeyup="search_table()" placeholder="Buscar">
+        <table id="tbl3">
+            <th style="width: 110px;">Fecha</th>
+            <th style="width: 70px;">Costo</th>
+            <th style="width: 70px;">Venta</th>
+            <th style="width: 70px;">Ganancia</th>
+        </table>
+    </div>
+</div>
+{% endblock %}

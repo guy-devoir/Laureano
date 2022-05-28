@@ -36,6 +36,10 @@ def about_page():
 def add_p():
     return render_template('add.html')
 
+@app.route('/profits')
+def see_profits():
+    return render_template('profits.html')
+
 @app.route('/inv')
 def inventory():
     return render_template('inventory.html')
@@ -45,5 +49,5 @@ def contacts():
     return render_template('contacts.html')
 
 if __name__ == '__main__':
-    #app.run(debug=True, port=4000)
-    ui.run()
+    app.run(debug=True, port=4000)
+    #ui.run()

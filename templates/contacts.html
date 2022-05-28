@@ -19,15 +19,12 @@
         <input type="text" id="search_input" style="padding: 5px; margin: 10px; width: 630px;" onkeyup="search_table()" placeholder="Buscar">
         <div class="inv-table">
             <table class="cleartable" id="tbl1">
-                <thead>
+                <tbody>
                     <th style="width: 20px;"></th>
                     <th style="width: 73px;">NIT</th>
                     <th style="width: 130px;">Nombre</th>
                     <th style="width: 350px;">Dirección</th>
                     <th style="width: 53px;">Tel.</th>
-                </thead>
-                <tbody>
-    
                 </tbody>
             </table>
         </div>
@@ -75,13 +72,7 @@
     
     function getAll(){
         var table = document.getElementById("tbl1");
-        var tablebody = table.getElementsByTagName('tbody')[0];
-        if (tablebody.rows.length == 0){
-            console.log('Empty Table');
-        }else{
-            console.log('Cleaning Table')
-            tablebody.innerHTML = '';     
-        }
+        
         firebase.database().ref('/clientes_nit/').once('value',
             function(AllRecords){
                 AllRecords.forEach(
@@ -93,8 +84,8 @@
 
                         var telef = CurrentRecord.val().tel;
                         
-                        var n = tablebody.rows.length;
-                        var row = tablebody.insertRow(n);
+                        var n = table.rows.length;
+                        var row = table.insertRow(n);
 
                         var cell1 = row.insertCell(0);
                         var cell2 = row.insertCell(1); 
@@ -102,7 +93,7 @@
                         var cell4 = row.insertCell(3);
                         var cell5 = row.insertCell(4);
 
-                        cell1.innerHTML = "<a href='#' onclick='selectItem("+n+")'><i class='fas fa-edit'></i></a>";
+                        cell1.innerHTML = "<a onclick='selectItem("+n+")'><i class='fas fa-edit'></i></a>";
                         cell2.innerHTML = nit;
                         cell3.innerHTML = name;
                         cell4.innerHTML = address;
@@ -115,11 +106,10 @@
 
     function selectItem(n){
         var table = document.getElementById("tbl1");
-        var tablebody = table.getElementsByTagName('tbody')[0];
-        document.getElementById('nit_update').innerHTML =tablebody.rows[n].cells[1].innerHTML;
-        document.getElementById('address_update').value = tablebody.rows[n].cells[2].innerHTML;
-        document.getElementById('name_update').value = tablebody.rows[n].cells[3].innerHTML;
-        document.getElementById('_tel_update').value = tablebody.rows[n].cells[4].innerHTML;
+        document.getElementById('nit_update').innerHTML = table.rows[n].cells[1].innerHTML;
+        document.getElementById('name_update').value = table.rows[n].cells[2].innerHTML;
+        document.getElementById('address_update').value = table.rows[n].cells[3].innerHTML;
+        document.getElementById('_tel_update').value = table.rows[n].cells[4].innerHTML;
     }
 
     function updateDb(){
@@ -141,11 +131,10 @@
                     document.getElementById('address_update').value = '';
                     document.getElementById('name_update').value = '';
                     document.getElementById('_tel_update').value = '';
-                    getAll()
+                    location.reload()
                 }else{
                     alert('Precio Unitario DEBE de ser llenado')
                 }
-                
             }else{
                 alert('Concepto DEBE de ser llenado')
             }
@@ -158,12 +147,12 @@
 
     function search_table(){
         // Declare variables
-        var input, filter, table, tr, td, i, txtValue, txtValue2, txtValue3, txtValue4, tablebody;
+        var input, filter, table, tr, td, i, txtValue, txtValue2, txtValue3, txtValue4;
         input = document.getElementById("search_input");
         filter = input.value.toUpperCase();
         table = document.getElementById("tbl1");
-        tablebody = table.getElementsByTagName('tbody')[0];
-        tr = tablebody.getElementsByTagName("tr");
+        
+        tr = table.getElementsByTagName("tr");
 
         // Loop through all table rows, and hide those who don't match the search query
         for (i = 0; i < tr.length; i++) {

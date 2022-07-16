@@ -1,15 +1,33 @@
-var products_cache = [];
+let products_cache = [];
+let nits = firebase.database().ref('/clientes_nit/');
+
+function searchNIT(){
+	let text = document.getElementById('NIT').value;
+	try {
+		var ref = firebase.database().ref('/clientes_nit/' + text)
+		ref.once('value', function (snapshot) {
+			var obj = snapshot.val();
+			if (obj != undefined) {
+				document.getElementById('_client').value = obj.name;
+				document.getElementById('_adress').value = obj.address;						
+			}
+		});
+	} catch (error) {
+		console.log(error)
+	}
+}
 
 function addProduct(_val, _quantity, _concept, _price) {
-	var random = Math.floor(Math.random() * 1000001).toString();
-	var table = document.getElementById("tbl1");
+	let random, table, row, cell1, cell2, cell3, cell4, cell5
+	random = Math.floor(Math.random() * 1000001).toString();
+	table = document.getElementById("tbl1");
 	const n = document.getElementById("tbl1").rows.length;
-	var row = table.insertRow(n);
-	var cell1 = row.insertCell(0); //Suprimir
-	var cell2 = row.insertCell(1); //Cantidad
-	var cell3 = row.insertCell(2); //Concepto
-	var cell4 = row.insertCell(3); //Precio
-	var cell5 = row.insertCell(4); //Total
+	row = table.insertRow(n);
+	cell1 = row.insertCell(0); //Suprimir
+	cell2 = row.insertCell(1); //Cantidad
+	cell3 = row.insertCell(2); //Concepto
+	cell4 = row.insertCell(3); //Precio
+	cell5 = row.insertCell(4); //Total
 
 	cell1.innerHTML = "<button class='delete-button' value='"+ _val +"' onclick=\"deleteProduct('producto_" + random + "')\"></button>";
 	//Celda 2
@@ -33,7 +51,7 @@ function addProduct(_val, _quantity, _concept, _price) {
 }
 
 function update_table(variable){
-	var tabla = document.getElementById('tbl1')
+	let tabla = document.getElementById('tbl1')
 	for(let i in tabla.rows){	
 		if (parseInt(i)){
 			//console.log("Row Number: ",i);
@@ -70,32 +88,32 @@ function manualAdd(){
 
 function sectionSelected(){
 	if (document.getElementById('general').checked){
-		searchCode('/productos/');
+		searchCode('price');
 	} else if (document.getElementById('compra').checked){
-		searchCode('/productos-compra/');
+		searchCode('price_compra');
 	} else if (document.getElementById('escuela').checked){
-		searchCode('/productos-escuelas/');
+		searchCode('price_escuela');
 	} else if (document.getElementById('other').checked){
-		searchCode('/productos-other/');
+		searchCode('price_a');
 	} else {
 		alert('Seleccione la dirección de la base de datos.')
 	}
 }
 
 function searchCode(reference){
+	let _code, ref;
 	if (document.getElementById("barcode").value != NaN || document.getElementById("barcode").value == ""){
-	var _code = document.getElementById("barcode").value;
-	var ref = firebase.database().ref(reference + _code);
+	_code = document.getElementById("barcode").value;
+	ref = firebase.database().ref('/productos/' + _code);
 	ref.once('value', function (snapshot) {
         var obj = snapshot.val();
-		//console.log(_code, obj.name, obj.price)
 		if (obj != undefined) {
 			if (duplicateProduct(obj.name, false)){
 				console.log("Concepto actualizado")
 				showTotal()
 				document.getElementById("barcode").value = "";
 			} else{
-				addProduct(snapshot.key, 1, obj.name, obj.price);
+				addProduct(snapshot.key, 1, obj['name'], obj[reference]);
 				document.getElementById("barcode").value = "";
 			}						
 		}		
@@ -106,8 +124,9 @@ function searchCode(reference){
 }
 
 function showTotal(){
-	var table = document.getElementById("tbl1");
-	var aux = 0;
+	let table, aux;
+	table = document.getElementById("tbl1");
+	aux = 0;
 	for (let i in table.rows) {
 		if (parseInt(i)) {
 			if (parseInt(i) != 0) {
@@ -119,17 +138,17 @@ function showTotal(){
 }
 
 function totalPrice(_quantity, _price){
-	var _result = _quantity*_price;
+	let _result = _quantity*_price;
 	_result = parseFloat(_result).toFixed(2)
 	return _result.toString()
 }
 
 function deleteProduct(variable){
-	var tabla = document.getElementById("tbl1");
+	let tabla = document.getElementById("tbl1");
 	for(let i in tabla.rows){	
 		if (parseInt(i)){
 			//console.log("Row Number: ",i);
-			var text = tabla.rows[i].cells[0].innerHTML;
+			let text = tabla.rows[i].cells[0].innerHTML;
 			if (text.includes(variable)){
 				tabla.deleteRow(i);
 				showTotal();
@@ -141,14 +160,14 @@ function deleteProduct(variable){
 }
 
 function duplicateProduct(_concept, _manual){
-	var tabla = document.getElementById("tbl1");
+	let tabla = document.getElementById("tbl1");
 	if (tabla.rows.length == 1){
 		return false;
 	}
 	//Se recorre toda la tabla
 	for(let i in tabla.rows){
 		if (parseInt(i)){
-			var text = tabla.rows[i].cells[2].innerHTML;
+			let text = tabla.rows[i].cells[2].innerHTML;
 			if (text == _concept) {
 				//Si ha sido una opción manual, hay que añadir la cantidad en '#quant'
 				tabla.rows[i].cells[1].getElementsByTagName('input')[0].value = _manual ? parseInt(tabla.rows[i].cells[1].getElementsByTagName('input')[0].value) + parseInt(document.getElementById('quant').value) : parseInt(tabla.rows[i].cells[1].getElementsByTagName('input')[0].value)+1;
@@ -161,21 +180,35 @@ function duplicateProduct(_concept, _manual){
 	return false;
 }
 
+async function updateQuantity(key, q_one, q_two){
+	try{
+		console.log(typeof(q_one),  '', typeof(q_two))
+		await firebase.database().ref('/productos/' + key).update({
+			cantidad: (parseInt(q_one) - parseInt(q_two))
+		});
+	}catch(e){
+		console.log('Error' + e);
+	}
+}
+
 function toggle(){
-	var blur = document.getElementsByClassName('grid-container');
+	let blur, popup;
+	blur = document.getElementsByClassName('grid-container');
 	blur[0].classList.toggle('active');
-	var popup = document.getElementById('popup');
+	popup = document.getElementById('popup');
 	popup.classList.toggle('active');
 }
 
 //Manda está información para el backend en python
 function exportingAjax(){
-	var temp = [];
+	let temp, tabla, fel;
+	fel = false;
+	temp = [];
+	tabla = document.getElementById("tbl1");
 	const _nit = document.getElementById('NIT').value;
 	const _fecha = document.getElementById("_fec").value;
 	const _cliente = document.getElementById("_client").value;
 	const _direccion = document.getElementById("_adress").value;
-	var tabla = document.getElementById("tbl1");
 	
 	for (let i in tabla.rows){
 		if (parseInt(i)){
@@ -193,7 +226,7 @@ function exportingAjax(){
 		}
 	}
 	products_cache = temp;
-	const dict_values = { _nit, _fecha, _cliente, _direccion, products_cache};
+	const dict_values = { _nit, _fecha, _cliente, _direccion, products_cache, fel};
 	const s = JSON.stringify(dict_values);
 
 	try{
@@ -202,17 +235,59 @@ function exportingAjax(){
 			type:"POST",
 			contentType: "application/json",
 			data: JSON.stringify(s)
-		})	
+		});	
 		toggle();
 	}catch(error){
 		alert('Error al exportal a Excel, intente de nuevo: ', error);
 	}
 }
 
+function createFel(){
+	let temp, tabla, fel;
+	fel = true;
+	temp = [];
+	tabla = document.getElementById("tbl1");
+	const _nit = document.getElementById('NIT').value;
+	const _fecha = document.getElementById("_fec").value;
+	const _cliente = document.getElementById("_client").value;
+	const _direccion = document.getElementById("_adress").value;
+
+	for (let i in tabla.rows){
+		if (parseInt(i)){
+			if (i == 0){
+				console.log("Headers' row")
+			} else {
+				const aux = [];
+				aux.push(tabla.rows[i].cells[1].getElementsByTagName('input')[0].value);
+				aux.push(tabla.rows[i].cells[2].innerHTML.replace('<br>',''));
+				aux.push(tabla.rows[i].cells[3].getElementsByTagName('input')[0].value);
+				temp.push(aux);
+			}
+		} else {
+			console.log("Index undefined: ", i);
+		}
+	}
+	products_cache = temp;
+	const dict_values = { _nit, _fecha, _cliente, _direccion, products_cache, fel};
+	const s = JSON.stringify(dict_values);
+
+	try{
+		$.ajax({
+			url:"/",
+			type:"POST",
+			contentType: "application/json",
+			data: JSON.stringify(s)
+		});	
+	}catch(error){
+		alert('Error al exportal a Excel, intente de nuevo: ', error);
+	}
+}
+
 async function addProfit(){
-	var today = new Date();
-	var mth = new Object();
-	var mth = {
+	let today, mth, dd, mm, yyyy, temp, tabla, total_v;
+	today = new Date();
+	mth = new Object();
+	mth = {
 		'01': 'Enero',
 		'02': 'Febrero',
 		'03': 'Marzo',
@@ -226,19 +301,19 @@ async function addProfit(){
 		'11': 'Noviembre',
 		'12': 'Diciembre'
 	};
-	var dd = String(today.getDate()).padStart(2, '0');
-	var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-	var yyyy = today.getFullYear();
+	dd = String(today.getDate()).padStart(2, '0');
+	mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+	yyyy = today.getFullYear();
 
-	var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+	time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
 
 	today = yyyy + mm + dd + time;
 
 	const database = firebase.database();
-	var temp = [0];
-	var tabla = document.getElementById("tbl1");
+	temp = [0];
+	tabla = document.getElementById("tbl1");
 
-	var total_v = document.getElementById('n_total').innerHTML;
+	total_v = document.getElementById('n_total').innerHTML;
 
 	for(let i in tabla.rows){
 		if (parseInt(i)){
@@ -247,14 +322,31 @@ async function addProfit(){
 			} else {
 				const code = tabla.rows[i].cells[0].getElementsByClassName('delete-button')[0].value;
 				const _quantity = tabla.rows[i].cells[1].getElementsByTagName('input')[0].value;
+				let name_concept = ''; 
 
-				var ref = database.ref('/productos-compra/' + code);
+				let ref = database.ref('/productos/' + code);
 				await ref.once('value', function (snapshot){
 					var obj = snapshot.val();
 					if (obj != undefined){
-						temp[0] += _quantity*parseFloat(obj.price);				
+						temp[0] += _quantity*parseFloat(obj['price_compra']);
+						name_concept= obj['name'];				
 					}
 				});
+
+				database.ref('/productos/').once('value',
+				function(AllRecords){
+					AllRecords.forEach(
+						function(CurrentRecord){
+							var name_concept_2 = CurrentRecord.val().name;
+							if (name_concept_2 == name_concept) {
+								//CurrentRecord.val().cantidad = '1000';
+								//console.log(CurrentRecord.val().cantidad - _quantity)
+								updateQuantity(CurrentRecord.key, CurrentRecord.val().cantidad, _quantity);
+							}
+						}
+					);
+				}
+			);
 			}
 		} else {
 			console.log("Index undefined: ", i);

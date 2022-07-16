@@ -5,7 +5,7 @@
 	.grid-container {
         display: flex;
 		margin: 10px;
-	}
+    }
 }
 </style>
 {% endblock %}
@@ -38,9 +38,9 @@
                     var cell4 = row.insertCell(3);
 
                     cell1.innerHTML = dia + ' ' + mes + ' ' + ano;
-                    cell2.innerHTML = costo;
-                    cell3.innerHTML = venta;
-                    cell4.innerHTML = ganancia;
+                    cell2.innerHTML = parseFloat(costo).toFixed(2);
+                    cell3.innerHTML = parseFloat(venta).toFixed(2);
+                    cell4.innerHTML = parseFloat(ganancia).toFixed(2);
                 }
             )
         });
@@ -75,13 +75,18 @@
 <div class="grid-container">
     <div class="grid-item">
         <h1>Ventas</h1>
-        <input type="text" name="search_input" id="search_input" style="padding: 5px; margin: 10px; width: 290px;" onkeyup="search_table()" placeholder="Buscar">
-        <table id="tbl3">
-            <th style="width: 110px;">Fecha</th>
-            <th style="width: 70px;">Costo</th>
-            <th style="width: 70px;">Venta</th>
-            <th style="width: 70px;">Ganancia</th>
-        </table>
+        <div>
+            <i class="fas fa-search"></i>
+            <input type="text" name="search_input" id="search_input" style="padding: 5px; margin: 10px; width: 290px;" onkeyup="search_table()" placeholder="Buscar">
+        </div>
+        <div class="inv-table" style="height: 200px !important;">
+            <table id="tbl3">
+                <th style="width: 110px;">Fecha</th>
+                <th style="width: 70px;">Costo</th>
+                <th style="width: 70px;">Venta</th>
+                <th style="width: 70px;">Ganancia</th>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

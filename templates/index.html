@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
 	<meta http-equiv=”Content-Type” content=”text/html; charset=UTF-8″ />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -25,26 +25,28 @@
 </head>
 <body>
 	<nav>
-		<a href="/"><i class="fas fa-file-excel fa-xs"></i> Home</a>
-		<a href="/profits"><i class="fas fa-money-bill fa-xs"></i> Ventas</a>
-		<a href="/inv"><i class="fas fa-table fa-xs"></i> Inventario</a>
-		<a href="/contacts"><i class="fa fa-solid fa-user fa-xs"></i> Agenda</a>
-		<a href="/about"><i class="fas fa-code fa-xs"></i> About</a>
+		<a href="/">Home</a>
+		<a href="/profits">Ventas</a>
+		<a href="/inv">Inventario</a>
+		<a href="/contacts">Agenda</a>
+		<a href="/about">About</a>
 	</nav>
 	{% block content %}
 	<div class="grid-container" id="blur">
 		<div class="grid-item">
 			<h1>Venta de Articulos de Limpieza</br>"Velasquez"</h1>
 			<label for="NIT">NIT:</label>
-			<input id="NIT" type="text">
+			<input id="NIT" type="text" onkeyup="searchNIT()">
 			<label for="_fec">Fecha:</label>
 			<input id="_fec" type="date">
 			<div><label for="_client">Nombre: </label></div>
 			<div><textarea id="_client"></textarea></div>
 			<div><label for="_adress">Dirección: </label></div>
 			<div><textarea id="_adress"></textarea></div>
-			<p>⠀</p>
-			<button onclick="exportingAjax()">Exportar</button>
+			<br>
+			<p>Garantize que todos los datos son correctos antes de crear una Factura</p>
+			<button onclick="createFel()">Factura Electronica</button>
+			<button onclick="exportingAjax()">Cotización/Proforma</button>
 			<button onclick="location.reload()">Limpiar/Recargar</button>
 			<table id="tbl1" contenteditable="false">
 				<tr>
@@ -84,7 +86,7 @@
 			<form>
 				<div>
 					<label for="quant">Cantidad: </label>
-					<input id="quant" type="number" style="width: 148px;" required>
+					<input id="quant" type="number" style="width: 148px;" min="0" required>
 				</div>
 				<div>
 					<label for="conc">Concepto: </label>

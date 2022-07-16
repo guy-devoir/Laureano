@@ -4,53 +4,77 @@
     table{
         border-collapse:initial;
     }
+
     input{
-		width: 200px;
-	}
+        width: 50px;
+    }
+
 	div{
 		padding: 7px;
 	}
+
+    .deliver_container{
+        height: 250px;
+        overflow-y: scroll;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        column-gap: 5px;
+    }
+
+    .check_button{
+        font-size: small;
+        padding: 2px;
+    }
+
+    .check_button:hover{
+        background-color: gray !important;
+    }
+
+    .deliver_container div{
+        border: 1px solid #28282b;
+        background-color: #28282b;
+        border-radius: 5px;
+    }
 </style>
 {% endblock %}
 {% block script%}<script type="text/javascript" src="{{url_for('static', filename='js/db.js')}}"></script>{% endblock %}	
 {% block title %}<title>Inventario</title>{% endblock %}
 {% block content %}
 <div class="grid-container">
-    <div class="grid-item">
+    <div class="grid-item" id="blur">
         <h1>Inventario</h1>
-        <button onclick="getAll('/productos/')">General</button>
-        <button onclick="getAll('/productos-escuelas/')">Escuelas</button>
-        <button onclick="getAll('/productos-compra/')">Compra</button>
-        <button onclick="getAll('/productos-other/')">...</button>
         <div>
-            <input type="text" id="search_input" style="padding: 5px; width: 550px;" onkeyup="search_table()" placeholder="Buscar">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search_input" style="padding: 5px; margin: 10px; width: 550px;" onkeyup="searchTable()" placeholder="Buscar">
         </div>
+        <button onclick="toggle()">Pedidos en Camino</button>
         <div class="inv-table">
             <table id="inv" contenteditable="false">
-                <thead>
-                    <th style="width: 20px;"></th>
-                    <th style="width: 130px;">Código</th>
-                    <th style="width: 350px;">Nombre</th>
-                    <th style="width: 53px;">Precio</th>
-                </thead>
-                <tbody>
-    
-                </tbody>
+                <th style="width: 20px;"></th>
+                <th style="width: 130px;">Código</th>
+                <th style="width: 350px;">Nombre</th>
+                <th style="width: 53px; font-size: small;">Precio</th>
+                <th style="width: 53px; font-size: small;">Cantidad</th>
             </table>
         </div>
         <p id="tbl_length" style="text-shadow:2px 2px 4px #003153; font-weight: 600;">No. de Códigos de Barras:</p>
     </div>
     <div>
-        
         <div class="grid-item">
             <h1>Añadir Producto</h1>		
             <form id="form-new-product">
                 <div><label for="barcode">Código de Barras: </label></div>					
-                <div><input id="barcode" type="text" onkeydown="return(event.keyCode!=13);" required></div>	
+                <div><input id="barcode" type="text" style="width: 200px;" onkeydown="return(event.keyCode!=13);" required></div>	
                 <div><label for="_conc">Concepto: </label></div>
-                <div><input id="_conc" type="text" onkeydown="return(event.keyCode!=13);" required></div>	
-                <div><label for="cu">Precio Unitario: </label></div>					
-                <div><input id="cu" type="text" onkeydown="return(event.keyCode!=13);" required></div>
+                <div><input id="_conc" type="text" style="width: 200px;" onkeydown="return(event.keyCode!=13);" required></div>	
+                <div>
+                    <label for="cu">Precio Unitario: </label>					
+                    <input id="cu" type="number" onkeydown="return(event.keyCode!=13);" step="0.01" required>
+                </div>
+                <div>
+                    <label for="qua">Cantidad: </label>
+                    <input type="number" name="qua" id="qua" step="1" onkeydown="return(event.keyCode!=13);">
+                </div>
             </form>
             <button onclick="addProduct()">Agregar</button>
         </div>
@@ -58,122 +82,110 @@
         <div class="grid-item">
             <h1>Actualizar Producto</h1>
             <form>
-                <div><p id="barcode_update"></p></div>
                 <div><p id="barcode_id"></p></div>
                 <div><label for="_conc_update">Concepto: </label></div>
-                <div><input id="_conc_update" type="text" onkeydown="return(event.keyCode!=13);" required></div>	
-                <div><label for="cu_update">Precio Unitario: </label></div>					
-                <div><input id="cu_update" type="text" onkeydown="return(event.keyCode!=13);" required></div>
+                <div><input id="_conc_update" type="text" style="width: 200px;" onkeydown="return(event.keyCode!=13);" required></div>	
+                <div>
+                    <label for="qua_upt">Cantidad: </label>
+                    <input type="number" name="qua_upt" id="qua_upt" step="1">
+                </div>
+                <div>
+                    <label for="cu_upt">Precio General: </label>					
+                    <input id="cu_upt" type="number" onkeydown="return(event.keyCode!=13);" step="0.01" required>
+                </div>
+                <div>
+                    <label for="cu_sch_upt">Precio Escuelas: </label>
+                    <input type="number" name="cu_sch_upt" id="cu_sch_upt" step="0.01">
+                </div>
+                <div>
+                    <label for="cu_buy_upt">Precio de Comprea: </label>					
+                    <input id="cu_buy_upt" type="number" onkeydown="return(event.keyCode!=13);" step="0.01" required>
+                </div>
+                <div>
+                    <label for="cu_a_upt">Precio a: </label>
+                    <input type="number" name="cu_a_upt" id="cu_a_upt" step="0.01">
+                </div>
             </form>
-            <button onclick="updateDb()">Actualizar</button>
+            <button onclick="updateProduct()">Actualizar</button>
         </div>
     </div>
 </div>
-
+<div id="popup">
+    <h1>Pedidos en Camino</h1>
+    <div class="deliver_container" id="dcont1">
+        {%for i in range(0, len)%}
+        <div>
+            <button class="check_button" onclick="checkDiv('variable_{{i}}')">&#10004; Entregado</button>
+            <button class="check_button" onclick="deleteDiv('variable_{{i}}')">Borrar</button>
+            <button class="check_button">Actualizar</button>
+            <p>Descripción: </p>
+            <!-- DESCRIPCIÓN -->
+            <p name="desc">{{Pedidos[i]['desc']}}</p> 
+            <p>Fecha de entrega: </p>
+            <!-- FECHA EN LA QUE ES ESPERADO QUE VENGA -->
+            <p name="expec">{{Pedidos[i]['expec']}}</p>
+            <p>Cantidad: </p>
+            <!-- CANTIDAD -->
+            <p name="qant">{{Pedidos[i]['qant']}}</p>
+            <p>Observaciones: </p>
+            <!-- OBSERVACIONES -->
+            <p name="obs">{{Pedidos[i]['obs']}}</p>
+        </div>
+        {%endfor%}
+    </div>
+    <div id="delivery_input" style="visibility: hidden; height: 0px;">
+        <p id="div_index" style="visibility: hidden;"></p>
+        <p></p>
+        <input type="text">
+        <p></p>
+        <input type="date">
+        <p></p>
+        <textarea name="" id="input_exc" cols="30" rows="10"></textarea>
+        <p></p>
+        <input type="number">
+        <p></p>
+        <button onclick="openInputField(false)">Terminar</button>
+    </div>
+    <button onclick="exportingDeliveries()">Cerrar</button>
+</div>
 <script>
-    var urlDB = '';
-    window.addEventListener('load', (event) =>{
+    window.addEventListener('load', function() {
+        getAllProducts();
+    })
 
-        document.getElementById('barcode_update').value = "";
-        document.getElementById('_conc_update').value = "";
-        document.getElementById('cu_update').value = "";
-
-    });
-
-    function getAll(reference){
-        urlDB = reference;
-        var table = document.getElementById("inv");
-        var tablebody = table.getElementsByTagName('tbody')[0];
-        if (tablebody.rows.length == 0){
-            console.log('Empty Table');
-        }else{
-            console.log('Cleaning Table')
-            tablebody.innerHTML = '';     
+    function openInputField(bool){
+        if (bool) {
+            document.getElementById('delivery_input').style.visibility = 'visible';
+            document.getElementById('delivery_input').style.height = 'auto';
+        } else {
+            document.getElementById('delivery_input').style.visibility = 'hidden';
+            document.getElementById('delivery_input').style.height = '0px';
         }
-        firebase.database().ref(reference).once('value',
-            function(AllRecords){
-                AllRecords.forEach(
-                    function(CurrentRecord){
-                        var key = CurrentRecord.key;
-                        var name = CurrentRecord.val().name;
-
-                        var price = CurrentRecord.val().price;
-                        
-                        var n = tablebody.rows.length;
-                        var row = tablebody.insertRow(n);
-
-                        var cell1 = row.insertCell(0);
-                        var cell2 = row.insertCell(1); 
-                        var cell3 = row.insertCell(2);
-                        var cell4 = row.insertCell(3);
-
-                        cell1.innerHTML = "<a onclick='selectItem("+n+")'><i class='fas fa-edit'></i></a>";
-                        cell2.innerHTML = key;
-                        cell3.innerHTML = name;
-                        cell4.innerHTML = parseFloat(price).toFixed(2);
-                        document.getElementById('tbl_length').innerHTML = 'No. de Códigos de Barras: ' + String(n + 1);
-    
-                    }
-                );
-            }
-        );
     }
 
-    function selectItem(n){
-        var table = document.getElementById("inv");
-        var tablebody = table.getElementsByTagName('tbody')[0];
-        document.getElementById('barcode_update').innerHTML = urlDB;
-        document.getElementById('barcode_id').innerHTML = tablebody.rows[n].cells[1].innerHTML;
-        document.getElementById('_conc_update').value = tablebody.rows[n].cells[2].innerHTML;
-        document.getElementById('cu_update').value = tablebody.rows[n].cells[3].innerHTML;
+    function toggle(){
+        let blur, popup;
+        blur = document.getElementsByClassName('grid-container');
+        blur[0].classList.toggle('active');
+        popup = document.getElementById('popup');
+        popup.classList.toggle('active');
     }
 
-    function updateDb(){
-        database = firebase.database();
-        var url_code = document.getElementById('barcode_update').innerHTML + document.getElementById('barcode_id').innerHTML;
-        var concepto =  document.getElementById('_conc_update').value;
-        var price = document.getElementById('cu_update').value;
-        console.log(url_code, '+', concepto, '+', price);
-        try{
-            if (barcode != ""){
-                if (concepto !=""){
-                    if (price != ""){
-                        database.ref(url_code).update({
-                            name : concepto,
-                            price : price
-                        });
-                        document.getElementById('barcode_update').value = "";
-                        document.getElementById('_conc_update').value = "";
-                        document.getElementById('cu_update').value = "";
-                        getAll(urlDB)
-                    }else{
-                        alert('Precio Unitario DEBE de ser llenado')
-                    } 
-                }else{
-                    alert('Concepto DEBE de ser llenado')
-                }
-            }else{
-                alert('Barcode DEBE de ser llenado')
-            }
-        } catch (error) {
-            console.error(error);
-            alert("Database Error");
+    function searchTable(bool = true, n = 0){
+        let input, filter, table, tr, td, i, txtValue, txtValue2, txtValue3, tablebody, bar_array;
+        if (bool){
+            input = document.getElementById("search_input");
+            filter = input.value.toUpperCase();
+        } else {
+            input = document.getElementById('dcont1').getElementsByTagName('div')[n].getElementsByTagName('p')['desc'].innerText;
+            filter = input.toUpperCase();
         }
-        var input = document.getElementById("search_input");
-        input.value = document.getElementById('barcode_id').innerHTML;
-        setTimeout(() => { search_table(); }, 1000);
-    }
-
-    function search_table(){
-        // Declare variables
-        var input, filter, table, tr, td, i, txtValue, txtValue2, txtValue3, tablebody;
-        input = document.getElementById("search_input");
-        filter = input.value.toUpperCase();
+        bar_array = [];
+        
         table = document.getElementById("inv");
         tablebody = table.getElementsByTagName('tbody')[0];
         tr = tablebody.getElementsByTagName("tr");
 
-        // Loop through all table rows, and hide those who don't match the search query
         for (i = 0; i < tr.length; i++) {
             td = tr[i].getElementsByTagName("td")[1];
             if (td) {
@@ -184,6 +196,7 @@
                     tr[i].style.display = "";
                 }else if(txtValue2.toUpperCase().indexOf(filter) > - 1){
                     tr[i].style.display = "";
+                    bar_array.push(txtValue);
                 }else if(txtValue3.toUpperCase().indexOf(filter) > - 1){
                     tr[i].style.display = "";
                 } else {
@@ -192,6 +205,7 @@
             }
         }
 
+        return bar_array;
     }
 </script>
 {% endblock %}

@@ -2,9 +2,8 @@ from flask import Flask, request, render_template
 from flask_cors import CORS
 from excel_handling import *
 from flaskwebgui import FlaskUI
-import os
 import json
-import sys
+from fel import *
 
 app = Flask(__name__, template_folder='templates')
 ui = FlaskUI(app, maximized=True, close_server_on_exit=False, port='4000')
@@ -22,11 +21,16 @@ def main_page():
         output = request.get_json()
         json_object = json.loads(output)
         excel = JSON_to_excel()
-        print(json_object.keys())
-        excel.create_xlsx(json_object['_nit'], json_object['_fecha'], json_object['_cliente'], json_object['_direccion'], json_object['products_cache'])
+        fel = WebAutomaton()
+        #print(json_object.keys())
+        if (json_object['fel']):
+            fel.invoice_SAT(json_object['_nit'], json_object['_fecha'], json_object['_cliente'], json_object['_direccion'], json_object['products_cache'])
+            return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+        else:
+            excel.create_xlsx(json_object['_nit'], json_object['_fecha'], json_object['_cliente'], json_object['_direccion'], json_object['products_cache'])
+            return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     else:
         return render_template('index.html')
-    return render_template('index.html')
 
 @app.route('/about')
 def about_page():
@@ -40,9 +44,19 @@ def add_p():
 def see_profits():
     return render_template('profits.html')
 
-@app.route('/inv')
+@app.route('/inv', methods=['GET','POST'])
 def inventory():
-    return render_template('inventory.html')
+    if request.method == 'POST':
+        output = request.get_json()
+        with open("tocome.json", "w") as f:
+            f.write(output)
+        return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+    else:
+        with open('tocome.json', 'r') as f:
+            f_content = f.read()
+            json_f = json.loads(f_content)
+            pedidos = json_f['pedidos']
+            return render_template('inventory.html', len = len(pedidos), Pedidos = pedidos)
 
 @app.route('/contacts')    
 def contacts():

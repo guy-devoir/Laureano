@@ -183,9 +183,24 @@ tr:nth-child(odd){
     background-color: #87CEEB;
 }
 
+table a span{
+    visibility: hidden;
+    width: 60px;
+    font-size: small;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 1px 0;
+}
+
 table a:hover{
-    color: rgba(0, 49, 83, 1);
+    color: rgba(0, 49, 83, 0.75);
     cursor: pointer;
+}
+
+table a:hover span{
+    visibility: visible;
 }
 
 table input{
@@ -194,7 +209,7 @@ table input{
 }
 
 .inv-table{
-    height: 500px; 
+    height: 600px; 
     overflow-x: hidden; 
     overflow-y: scroll;
 }

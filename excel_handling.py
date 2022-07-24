@@ -139,3 +139,7 @@ class JSON_to_excel:
 			os.startfile(output_name)
 		except:
 			print('Doesnt pass')
+
+	def read_xlsx(self):
+		wb = load_workbook('uploads/temp.xlsx')
+		return 0

@@ -1,0 +1,21 @@
+{% extends "index.html" %}
+{% block style %}{% endblock %}
+{% block script%}<!-- NO SCRIPT -->{% endblock %}
+
+{% block title %}
+<title>About</title>
+{% endblock %}
+{% block content %}
+<div class="grid-container">
+    <div class="grid-item">
+        <h1>Importar Excel</h1>
+        <form action = '{{localhost}}uploader' method = "POST" enctype = "multipart/form-data">
+            <input type = "file" name = "file" accept=".xlsx">
+            <br>
+            <center>
+                <button type="submit">Subir</button>
+            </center>
+        </form>	
+    </div>
+</div>
+{% endblock %}

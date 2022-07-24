@@ -1,4 +1,5 @@
-from flask import Flask, request, render_template
+from flask import Flask, redirect, request, render_template
+#from werkzeug import secure_filename
 from flask_cors import CORS
 from excel_handling import *
 from flaskwebgui import FlaskUI
@@ -20,13 +21,13 @@ def main_page():
     if request.method == 'POST':
         output = request.get_json()
         json_object = json.loads(output)
-        excel = JSON_to_excel()
-        fel = WebAutomaton()
         #print(json_object.keys())
         if (json_object['fel']):
+            fel = WebAutomaton()
             fel.invoice_SAT(json_object['_nit'], json_object['_fecha'], json_object['_cliente'], json_object['_direccion'], json_object['products_cache'])
             return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
         else:
+            excel = JSON_to_excel()
             excel.create_xlsx(json_object['_nit'], json_object['_fecha'], json_object['_cliente'], json_object['_direccion'], json_object['products_cache'])
             return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
     else:
@@ -36,9 +37,19 @@ def main_page():
 def about_page():
     return render_template('about.html')
 
-@app.route('/add')
-def add_p():
-    return render_template('add.html')
+@app.route('/upload')
+def add_file():
+    #print(request.host_url)
+    lh = request.host_url
+    return render_template('upload.html', localhost=lh)
+
+@app.route('/uploader', methods=['POST'])
+def redirect_main():
+    #if request.method == 'POST':
+    #    f = request.files['file']
+    #    f.save(secure_filename(f.filename))
+    #    return 'file uploaded successfully'
+    return redirect("/", 302)
 
 @app.route('/profits')
 def see_profits():

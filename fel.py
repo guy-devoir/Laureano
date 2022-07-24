@@ -14,7 +14,7 @@ class WebAutomaton:
         driver_path = 'msedgedriver.exe'
         self.driver = webdriver.Edge(driver_path)
 
-    def invoice_SAT(self, nit, fecha, cliente, direccion, productos):
+    def invoice_SAT(self, nit, cliente, productos):
         login_page = "https://farm3.sat.gob.gt/menu/login.jsp"
         fel_page = "https://farm3.sat.gob.gt/menu/Seguridad.do?opc=007032100&gui=F83038F28671148FE040640A3E3E3B42&a=AgenciaVirtual&s=237795931&url=https://farm3.sat.gob.gt/agenciaVirtual-web/pages/agenciaPortada.jsf"
         fel_link = "html/body/form/table[2]/tbody/tr[6]/td[1]/div/div[2]/ul/li[2]/a"
@@ -77,9 +77,11 @@ class WebAutomaton:
         wbw.until(EC.element_to_be_clickable((By.XPATH, fel_elements['dummy_click']))).click()
         time.sleep(1)
         try:
-            wbw.until(EC.element_to_be_clickable((By.XPATH, fel_elements['vista_p']))).click()
-            wbw.until(EC.element_to_be_clickable((By.XPATH, fel_elements['certify_button']))).click()
-            #wbw.until(EC.element_to_be_clickable((By.XPATH, fel_elements['sign_input']))).send_keys()
-            #wbw.until(EC.element_to_be_clickable((By.XPATH, fel_elements['sign_button']))).click()
+            if p_len != 0:
+                wbw.until(EC.element_to_be_clickable((By.XPATH, fel_elements['vista_p']))).click()
+                wbw.until(EC.element_to_be_clickable((By.XPATH, fel_elements['certify_button']))).click()
+                wbw.until(EC.element_to_be_clickable((By.XPATH, fel_elements['sign_input']))).send_keys()
+                wbw.until(EC.element_to_be_clickable((By.XPATH, fel_elements['sign_button']))).click()
+                wbw.until(EC.element_to_be_clickable((By.XPATH, fel_elements['download_button']))).click()
         except:
             print('NIT no valido \nEntrada Manual')
